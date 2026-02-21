@@ -128,7 +128,8 @@ export default function Partners() {
 
         <div className="mt-16 text-center">
           <p className="text-gray-600 text-lg mb-6">
-            Together, we've impacted over <span className="font-bold text-emerald-600">100,000 lives</span> across multiple regions
+          
+          
           </p>
         </div>
       </div>
