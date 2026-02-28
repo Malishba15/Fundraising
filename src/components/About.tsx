@@ -35,7 +35,7 @@ export default function About() {
             Building a Better Tomorrow
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-           Dastarkhawan-e-Amal Foundation has been at the forefront of humanitarian aid during Ramzan
+           Dastarkhawan-e-Amal has been at the forefront of humanitarian aid during Ramzan
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export default function About() {
           <div className="space-y-6">
             <h3 className="text-3xl font-bold text-gray-900">Who We Are</h3>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Dastarkhawan-e-Amal Foundation is a dedicated humanitarian organization committed to serving underprivileged communities during the blessed month of Ramzan. We believe that no one should go hungry or lack basic necessities during this sacred time.
+              Dastarkhawan-e-Amal is a dedicated humanitarian organization committed to serving underprivileged communities during the blessed month of Ramzan. We believe that no one should go hungry or lack basic necessities during this sacred time.
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
               Our mission is built on the principles of compassion, integrity, and transparency. We mobilize thousands of volunteers and work with partner organizations to ensure that aid reaches those who need it most.

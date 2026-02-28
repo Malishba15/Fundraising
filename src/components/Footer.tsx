@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Instagram, Mail, Phone, ArrowUp } from 'lucide-react';
+import { Instagram, ArrowUp } from 'lucide-react';
 import logo from '../logo.png';
 
 export default function Footer() {
@@ -75,13 +75,13 @@ export default function Footer() {
               <div className="w-14 h-14 bg-white rounded-full shadow-md overflow-hidden flex-shrink-0 border-2 border-emerald-100 flex items-center justify-center">
                 <img 
                   src={logo}
-                  alt="Dastarkhan-e-Amal Logo" 
+                  alt="Dastarkhawan-e-Amal Logo" 
                   className="w-full h-full object-cover"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-gray-900 tracking-tight">Dastarkhan-e-Amal</span>
+                <span className="text-xl font-bold text-gray-900 tracking-tight">Dastarkhawan-e-Amal</span>
                 <span className="text-xs font-bold text-emerald-600 tracking-wider uppercase mt-0.5">Every Plate Matters</span>
               </div>
             </div>
@@ -128,19 +128,18 @@ export default function Footer() {
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Get In Touch</h3>
             
             <div className="space-y-4">
-              <div {...interactiveHandlers} className="flex items-center gap-3 group cursor-pointer w-max">
+              <a
+                {...interactiveHandlers}
+                href="https://www.instagram.com/dastar.khawane.amal?igsh=NWpzZzhoNXNyb25o&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 group cursor-pointer w-max"
+              >
                 <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all text-emerald-600 shadow-sm">
-                  <Mail className="w-3.5 h-3.5" />
+                  <Instagram className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-sm text-gray-600 font-medium group-hover:text-emerald-600 transition-colors">info@dastarkhan.org</span>
-              </div>
-
-              <div {...interactiveHandlers} className="flex items-center gap-3 group cursor-pointer w-max">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all text-emerald-600 shadow-sm">
-                  <Phone className="w-3.5 h-3.5" />
-                </div>
-                <span className="text-sm text-gray-600 font-medium group-hover:text-emerald-600 transition-colors">+92 300 1234567</span>
-              </div>
+                <span className="text-sm text-gray-600 font-medium group-hover:text-emerald-600 transition-colors">Instagram Profile</span>
+              </a>
             </div>
           </div>
 

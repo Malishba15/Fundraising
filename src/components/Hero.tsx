@@ -74,7 +74,7 @@ export default function Hero({ onDonateClick, onVolunteerClick }: HeroProps) {
           </h2>
 
           <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-            Join Dastarkhan-e-Amal in providing essential food support to underprivileged families this holy month.
+            Join Dastarkhawan-e-Amal in providing essential food support to underprivileged families this holy month.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-6">
