@@ -29,8 +29,8 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const CLOUD_NAME = "dfn3u0zm8"; 
-  const UPLOAD_PRESET = "donation_proofs"; 
+  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   const donationCategories = [
     { id: 'ration', label: 'Ration Bag', icon: <Package className="w-5 h-5" />, price: 5000 },
