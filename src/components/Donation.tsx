@@ -1,7 +1,5 @@
-import { useState, useRef } from 'react';
-import { Heart, Loader2, CheckCircle, Building, Mail, User, Utensils, Package, Camera, ClipboardCheck, UserPlus, GraduationCap, Badge, Phone, Coins, X } from 'lucide-react';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { useState } from 'react';
+import { Heart, Loader2, CheckCircle, Building, Mail, User, Utensils, Package, ClipboardCheck, UserPlus, GraduationCap, Badge, Phone, Coins } from 'lucide-react';
 import qr from '../qr.jpg';
 interface DonationProps {
   showSuccess: boolean;
@@ -16,6 +14,7 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
     email: '',
     donationType: '',
     amount: '',
+    note: '',
     age: '',
     institution: '',
     phone: '',
@@ -23,14 +22,34 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
     designation: 'student'
   });
 
-  const [proofImage, setProofImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const DONATION_FORM_URL = import.meta.env.VITE_GOOGLE_FORM_DONATION_URL as string | undefined;
+  const VOLUNTEER_FORM_URL = import.meta.env.VITE_GOOGLE_FORM_VOLUNTEER_URL as string | undefined;
+
+  const buildGoogleFormUrl = (baseUrl: string, data: typeof formData) => {
+    const tokens: Record<string, string> = {
+      '{{name}}': data.name,
+      '{{email}}': data.email,
+      '{{donationType}}': data.donationType,
+      '{{amount}}': data.amount,
+      '{{note}}': data.note,
+      '{{phone}}': data.phone,
+      '{{cnic}}': data.cnic,
+      '{{age}}': data.age,
+      '{{institution}}': data.institution,
+      '{{designation}}': data.designation,
+    };
+
+    let finalUrl = baseUrl;
+    Object.entries(tokens).forEach(([token, value]) => {
+      const safeValue = encodeURIComponent(value || '');
+      finalUrl = finalUrl.split(token).join(safeValue);
+    });
+
+    return finalUrl;
+  };
 
   const donationCategories = [
     { id: 'ration', label: 'Ration Bag', icon: <Package className="w-5 h-5" />, price: 5000 },
@@ -68,21 +87,6 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
     }
   };
 
-  const uploadToCloudinary = async (file: File): Promise<string> => {
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", UPLOAD_PRESET);
-
-    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-      method: "POST",
-      body: data,
-    });
-
-    if (!response.ok) throw new Error("Image upload failed");
-    const result = await response.json();
-    return result.secure_url;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -90,25 +94,13 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
 
     try {
       if (activeTab === 'donate') {
-        if (!formData.name || !formData.donationType || !proofImage) {
-          throw new Error('Please fill all fields and upload payment proof.');
+        if (!formData.name || !formData.donationType) {
+          throw new Error('Please fill all required donation fields.');
         }
-        
+
         if (!formData.amount || parseFloat(formData.amount) <= 0) {
           throw new Error('Please enter a valid donation amount.');
         }
-
-        const imageUrl = await uploadToCloudinary(proofImage);
-
-        await addDoc(collection(db, 'donations'), {
-          donor_name: formData.name,
-          donor_email: formData.email,
-          donation_item: formData.donationType,
-          amount: parseFloat(formData.amount), 
-          proof_url: imageUrl,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-        });
       } else {
         if (!formData.name || !formData.email || !formData.cnic || !formData.phone || !formData.age || !formData.institution) {
           throw new Error('Please fill out all volunteer fields.');
@@ -127,24 +119,18 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
         if (!phoneRegex.test(formData.phone)) {
           throw new Error('Please provide a valid Pakistani phone number (e.g., 0300-1234567).');
         }
-
-        await addDoc(collection(db, 'volunteers'), {
-          volunteer_name: formData.name,
-          volunteer_email: formData.email,
-          age: parseInt(formData.age),
-          institution: formData.institution,
-          phone: formData.phone,
-          cnic: formData.cnic,
-          designation: formData.designation,
-          status: 'applied',
-          created_at: new Date().toISOString(),
-        });
       }
 
+      const formUrl = activeTab === 'donate' ? DONATION_FORM_URL : VOLUNTEER_FORM_URL;
+
+      if (!formUrl) {
+        throw new Error('Google Form URL is missing. Add VITE_GOOGLE_FORM_DONATION_URL or VITE_GOOGLE_FORM_VOLUNTEER_URL to your environment variables.');
+      }
+
+      const finalFormUrl = buildGoogleFormUrl(formUrl, formData);
+      window.open(finalFormUrl, '_blank', 'noopener,noreferrer');
       setShowSuccess(true);
-      setFormData({ name: '', email: '', donationType: '', amount: '', age: '', institution: '', phone: '', cnic: '', designation: 'student' });
-      setProofImage(null);
-      setImagePreview(null);
+      setFormData({ name: '', email: '', donationType: '', amount: '', note: '', age: '', institution: '', phone: '', cnic: '', designation: 'student' });
     } catch (err: any) {
       setError(err.message || 'Submission failed. Please try again.');
     } finally {
@@ -177,7 +163,9 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
             <CheckCircle className={`w-16 h-16 mx-auto ${activeTab === 'donate' ? 'text-emerald-500' : 'text-blue-500'}`} />
             <h3 className="text-3xl font-bold">Success!</h3>
             <p className="text-gray-600">
-              {activeTab === 'donate' ? 'Thank you for your donation. We will verify it shortly.' : 'Your volunteer application has been received.'}
+              {activeTab === 'donate'
+                ? 'Your donation form is ready in Google Forms. Please complete it there to save the record.'
+                : 'Your volunteer form is ready in Google Forms. Please complete it there to save the record.'}
             </p>
             <button onClick={() => setShowSuccess(false)} className="px-8 py-3 bg-gray-900 text-white rounded-full font-semibold">Close</button>
           </div>
@@ -234,20 +222,23 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
                   </div>
 
                   {/* Bank Details & QR Section */}
-                  <div className="grid md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                    <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
+                    <div className="space-y-3 min-w-0">
                       <h4 className="font-bold text-slate-800 flex items-center gap-2"><Building className="w-4 h-4" /> Bank Details</h4>
-                      <div className="text-sm space-y-2 text-slate-600 bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
+                      <div className="text-sm space-y-2 text-slate-600 bg-white p-4 rounded-lg border border-slate-100 shadow-sm min-w-0">
                         <p className="flex justify-between"><span>NayaPay</span> <span className="font-bold text-slate-900"></span></p>
-                        <p  className="flex justify-between"><span>IBAN:</span> <span className="font-bold text-slate-900">PK44NAYA1234503004721155</span></p>
+                        <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
+                          <span>IBAN:</span>
+                          <span className="font-bold text-slate-900 break-all">PK44NAYA1234503004721155</span>
+                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-6 md:pt-0">
-                      <div className="bg-white p-2 rounded-xl shadow-md border border-slate-200">
+                    <div className="flex flex-col items-center justify-center border-t sm:border-t-0 sm:border-l border-slate-200 pt-4 sm:pt-0 sm:pl-6">
+                      <div className="bg-white p-2 rounded-xl shadow-md border border-slate-200 w-full max-w-[160px]">
                         <img 
                           src={qr}
                           alt="Donation QR Code" 
-                          className="w-28 h-28 object-contain"
+                          className="w-full aspect-square object-contain"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
@@ -257,36 +248,6 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
                     </div>
                   </div>
 
-                  {/* Payment Proof Upload */}
-                  <div 
-                    onClick={() => !imagePreview && fileInputRef.current?.click()} 
-                    className={`relative border-2 border-dashed rounded-2xl transition-all duration-300 ${imagePreview ? 'border-emerald-500 bg-white p-4' : 'border-gray-200 p-8 cursor-pointer hover:border-emerald-300'}`}
-                  >
-                    <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
-                    
-                    {imagePreview ? (
-                      <div className="flex items-center gap-4">
-                        <img src={imagePreview} alt="Proof" className="w-20 h-20 object-cover rounded-lg border border-emerald-100" />
-                        <div className="flex-1">
-                          <p className="text-emerald-700 font-bold text-sm">Proof Selected</p>
-                          <p className="text-gray-500 text-xs">{proofImage?.name}</p>
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={(e) => { e.stopPropagation(); setImagePreview(null); setProofImage(null); }}
-                          className="p-2 bg-red-50 text-red-500 rounded-full hover:bg-red-100"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="text-gray-400 flex flex-col items-center gap-2">
-                        <Camera size={32} /> 
-                        <span className="text-sm font-medium text-gray-600">Upload Payment Screenshot</span>
-                        <span className="text-xs">PNG, JPG up to 5MB</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
 

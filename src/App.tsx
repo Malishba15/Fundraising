@@ -24,7 +24,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-blue-50">
+    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-emerald-50 via-white to-blue-50">
       
       {/* 1. Hero Section: Branding & Initial CTAs */}
       <Hero 
