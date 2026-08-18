@@ -79,14 +79,6 @@ export default function Donation({ showSuccess, setShowSuccess, activeTab, setAc
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProofImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Generate preview URL
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
